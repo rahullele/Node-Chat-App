@@ -25,16 +25,19 @@ app.use(express.static(publicPath));
 io.on('connection',(socket)=>{
 console.log('New user connected');
 
-socket.emit('newMsg',{
-  from:'mike',
-  text:'Hey. What is going on?',
-  createAt:123
+
+socket.on('createMsg',(message)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
+//The event names should be exactly same in client and server
+console.log('createMessage',message);
+
+io.emit('newMessage',{
+from:message.from,
+text:message.text,
+createAt:new Date().getTime()
+});
 });
 
-socket.on('createMsg',(newMsg)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
-//The event names should be exactly same in client and server
-console.log('createMessage',newMsg);
-});
+
 
 socket.on('disconnect',()=>{
 console.log('User is Disconnected');
