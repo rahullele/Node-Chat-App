@@ -2,7 +2,7 @@ const path=require('path');
 const express=require('express');
 const http=require('http');
 const socketIO=require('socket.io');
-const {generateMessage}=require('./utils/message');
+const {generateMessage,generateLocationMessage}=require('./utils/message');
 
 //console.log(__dirname+'../public'); //This goes inside the server folder, then comes out and then goes into public folder
 const publicPath=path.join(__dirname,'../public'); //This goes directly into the public folder
@@ -49,6 +49,9 @@ callback('This is from the server');                            // To avoid that
 // });
 });
 
+socket.on('createLocationMessage',(coords)=>{
+io.emit('newLocationMessage',generateLocationMessage('Admin',`${coords.latitude},${coords.longitude}`));
+});
 
 
 socket.on('disconnect',()=>{
