@@ -30,12 +30,12 @@ socket.emit('newMessage',generateMessage('Admin','Welcome to the chat app'));
 
 socket.broadcast.emit('newMessage',generateMessage('Admin','New user joined'));
 
-socket.on('createMsg',(message)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
+socket.on('createMessage',(message,callback)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
 //The event names should be exactly same in client and server
 console.log('createMessage',message);
 
 io.emit('newMessage',generateMessage(message.from, message.text));  //In this case, the message was broadcasted to all including the sender
-                            // To avoid that, we used the socket.broadcast.emit below. This method
+callback('This is from the server');                            // To avoid that, we used the socket.broadcast.emit below. This method
                             // broadcasts the message to all except the sender.
 // from:message.from,
 // text:message.text,
