@@ -2,6 +2,7 @@ const path=require('path');
 const express=require('express');
 const http=require('http');
 const socketIO=require('socket.io');
+const {generateMessage}=require('./utils/message');
 
 //console.log(__dirname+'../public'); //This goes inside the server folder, then comes out and then goes into public folder
 const publicPath=path.join(__dirname,'../public'); //This goes directly into the public folder
@@ -25,30 +26,21 @@ app.use(express.static(publicPath));
 io.on('connection',(socket)=>{
 console.log('New user connected');
 
+socket.emit('newMessage',generateMessage('Admin','Welcome to the chat app'));
 
-socket.emit('newMessage',{
-  from:'Admin',
-  text:'Welcome to the Chat App',
-  createdAt:new Date().getTime()
-});
-
-socket.broadcast.emit('newMessage',{
-  from:'Admin',
-  text:'New User joined',
-  createdAt:new Date().getTime()
-});
+socket.broadcast.emit('newMessage',generateMessage('Admin','New user joined'));
 
 socket.on('createMsg',(message)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
 //The event names should be exactly same in client and server
 console.log('createMessage',message);
 
-io.emit('newMessage',{  //In this case, the message was broadcasted to all including the sender
+io.emit('newMessage',generateMessage(message.from, message.text));  //In this case, the message was broadcasted to all including the sender
                             // To avoid that, we used the socket.broadcast.emit below. This method
                             // broadcasts the message to all except the sender.
-from:message.from,
-text:message.text,
-createAt:new Date().getTime()
-});
+// from:message.from,
+// text:message.text,
+// createAt:new Date().getTime()
+//});
 
 // socket.broadcast.emit('newMessage',{
 //   from:message.from,
