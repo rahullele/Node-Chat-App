@@ -26,15 +26,35 @@ io.on('connection',(socket)=>{
 console.log('New user connected');
 
 
+socket.emit('newMessage',{
+  from:'Admin',
+  text:'Welcome to the Chat App',
+  createdAt:new Date().getTime()
+});
+
+socket.broadcast.emit('newMessage',{
+  from:'Admin',
+  text:'New User joined',
+  createdAt:new Date().getTime()
+});
+
 socket.on('createMsg',(message)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
 //The event names should be exactly same in client and server
 console.log('createMessage',message);
 
-io.emit('newMessage',{
+io.emit('newMessage',{  //In this case, the message was broadcasted to all including the sender
+                            // To avoid that, we used the socket.broadcast.emit below. This method
+                            // broadcasts the message to all except the sender.
 from:message.from,
 text:message.text,
 createAt:new Date().getTime()
 });
+
+// socket.broadcast.emit('newMessage',{
+//   from:message.from,
+//   text:message.text,
+//   createdAt:new Date().getTime()
+// });
 });
 
 
