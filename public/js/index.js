@@ -1,6 +1,26 @@
 
 var socket = io(); //Here the client is requesting the server to open a web socket and keep that connection open.
       //The above loaded library 'socket.io.js' is a web socket library for the client side.
+
+
+function scrollToBottom()
+{
+
+//Selectors
+var messages=jQuery('#messages');
+var newMessage=messages.children('li:last-child');
+//Heights
+var clientHeight=messages.prop('clientHeight');
+var scrollTop=messages.prop('scrollTop');
+var scrollHeight=messages.prop('scrollHeight');
+var newMessageHeight=newMessage.innerHeight();
+var lastMessageHeight=newMessage.prev().innerHeight();
+
+if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
+  messages.scrollTop(scrollHeight);
+}
+}
+
 socket.on('connect',function() {
 console.log('Connected to Server'); //Arrow functions don't work on certain browsers like
 });                                //some versions of safari and firefox
@@ -29,13 +49,14 @@ socket.on('newMessage',function(message) {
 // var li=jQuery('<li></li>');
 // li.text(`${message.from} ${formattedTime}: ${message.text}`);
 // jQuery('#messages').append(li);
+scrollToBottom();
 });
 
 function updateTimeStamps(){
-  let loop = document.getElementById("messages").getElementsByClassName("message").length;
+  let loop = document.getElementById("messages").getElementsByClassName("messages").length;
   for(let i=0; i<loop; i++){
-    let timeStamp = document.getElementById("messages").getElementsByClassName("message")[i].getAttribute("data-timestamp");
-    document.getElementById("messages").getElementsByClassName("message")[i].getElementsByClassName("timestamps")[0].textContent = moment(timeStamp).fromNow();
+    let timeStamp = document.getElementById("messages").getElementsByClassName("messages")[i].getAttribute("data-timestamp");
+    document.getElementById("messages").getElementsByClassName("messages")[i].getElementsByClassName("timestamps")[0].textContent = moment(timeStamp).fromNow();
   }
   console.log('TimeStamps updated');
 };
@@ -60,10 +81,13 @@ var html=Mustache.render(template,{
   // jQuery('#messages').append(li);
 });
 jQuery('#messages').append(html);
+scrollToBottom();
 });
 
 jQuery('#message-form').on('submit',function(e){
-e.preventDefault();
+e.preventDefault();  //The default behaviour is that everytime we submit, it refreshes the entire page, this is the
+//default behaviour, to avoid that we write e.preventDefault. Now even if we click submit, it won't refresh the entire
+//page but just give the result on submit
 
 var messageTextbox=jQuery('[name=message]');
 
