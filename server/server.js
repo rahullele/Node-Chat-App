@@ -35,7 +35,7 @@ socket.on('createMessage',(message,callback)=>{  //This name of event 'createMsg
 console.log('createMessage',message);
 
 io.emit('newMessage',generateMessage(message.from, message.text));  //In this case, the message was broadcasted to all including the sender
-callback('This is from the server');                            // To avoid that, we used the socket.broadcast.emit below. This method
+callback();                            // To avoid that, we used the socket.broadcast.emit below. This method
                             // broadcasts the message to all except the sender.
 // from:message.from,
 // text:message.text,
