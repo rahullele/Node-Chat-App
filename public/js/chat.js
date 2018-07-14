@@ -22,7 +22,17 @@ if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeig
 }
 
 socket.on('connect',function() {
-console.log('Connected to Server'); //Arrow functions don't work on certain browsers like
+var params=jQuery.deparam(window.location.search);
+
+socket.emit('join',params,function(err){
+if(err){
+  alert(err);
+window.location.href='/'
+}else{
+console.log('No error');
+}
+
+});                                   //Arrow functions don't work on certain browsers like
 });                                //some versions of safari and firefox
                                     //so we use regular functions on client side
                                     //but we can use arrow functions on server side
@@ -30,6 +40,15 @@ console.log('Connected to Server'); //Arrow functions don't work on certain brow
 
 socket.on('disconnect',function() {
 console.log('Disconnected from server');
+});
+
+socket.on('updateUserList',function(users){
+var ol=jQuery('<ol></ol>');
+
+users.forEach(function(user){
+ol.append(jQuery('<li></li>').text(user));
+});
+jQuery('#users').html(ol); //We don't want to append to the list but print it as a new list.
 });
 
 socket.on('newMessage',function(message) {

@@ -2,8 +2,9 @@ const path=require('path');
 const express=require('express');
 const http=require('http');
 const socketIO=require('socket.io');
+const {Users}=require('./utils/users');
 const {generateMessage,generateLocationMessage}=require('./utils/message');
-
+const {isRealString}=require('./utils/validation');
 //console.log(__dirname+'../public'); //This goes inside the server folder, then comes out and then goes into public folder
 const publicPath=path.join(__dirname,'../public'); //This goes directly into the public folder
 const port=process.env.PORT || 3000;
@@ -14,7 +15,7 @@ var app=express();
 
 var server=http.createServer(app);
 var io=socketIO(server); //In io, we get the web sockets server, we can use it for emitting or listening to events.
-
+var users=new Users();
 //To serve static files such as images, CSS files, and JavaScript files,
 //use the express.static built-in middleware function in Express.
 // The function signature is:
@@ -26,9 +27,24 @@ app.use(express.static(publicPath));
 io.on('connection',(socket)=>{
 console.log('New user connected');
 
+socket.on('join',(params,callback)=>{
+
+if(!isRealString(params.name) || !isRealString(params.room))
+{
+return callback('Name and room name are required.');
+}
+
+socket.join(params.room);
+users.removeUser(socket.id); //to remove the user from any potential previous room
+users.addUser(socket.id,params.name,params.room);
+
+io.to(params.room).emit('updateUserList',users.getUserList(params.room));
 socket.emit('newMessage',generateMessage('Admin','Welcome to the chat app'));
 
-socket.broadcast.emit('newMessage',generateMessage('Admin','New user joined'));
+socket.broadcast.to(params.room).emit('newMessage',generateMessage('Admin',`${params.name} has joined.`));
+
+callback();
+});
 
 socket.on('createMessage',(message,callback)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
 //The event names should be exactly same in client and server
@@ -55,7 +71,12 @@ io.emit('newLocationMessage',generateLocationMessage('Admin',`${coords.latitude}
 
 
 socket.on('disconnect',()=>{
-console.log('User is Disconnected');
+var user=users.removeUser(socket.id);
+
+if(user){
+  io.to(user.room).emit('updateUserList',users.getUserList(user.room));
+  io.to(user.room).emit('newMessage',generateMessage('Admin',`${user.name} has left.`))
+}
 });
 
 }); //lets you register an event listener.
