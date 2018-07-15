@@ -48,9 +48,13 @@ callback();
 
 socket.on('createMessage',(message,callback)=>{  //This name of event 'createMsg' should be exactly same as the one in the index.js.
 //The event names should be exactly same in client and server
-console.log('createMessage',message);
 
-io.emit('newMessage',generateMessage(message.from, message.text));  //In this case, the message was broadcasted to all including the sender
+var user=users.getUser(socket.id);
+
+if(user && isRealString(message.text)){
+io.to(user.room).emit('newMessage',generateMessage(user.name, message.text));  //In this case, the message was broadcasted to all including the sender
+}
+
 callback();                            // To avoid that, we used the socket.broadcast.emit below. This method
                             // broadcasts the message to all except the sender.
 // from:message.from,
@@ -66,7 +70,10 @@ callback();                            // To avoid that, we used the socket.broa
 });
 
 socket.on('createLocationMessage',(coords)=>{
-io.emit('newLocationMessage',generateLocationMessage('Admin',`${coords.latitude},${coords.longitude}`));
+var user=users.getUser(socket.id);
+if(user){
+io.to(user.room).emit('newLocationMessage',generateLocationMessage(user.name,`${coords.latitude},${coords.longitude}`));
+}
 });
 
 
