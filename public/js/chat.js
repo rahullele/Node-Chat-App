@@ -129,6 +129,7 @@ locationButton.on('click', function(){ //Here, we can also write jQuery('#send-l
 locationButton.attr('disabled','disabled').text('Sending location....');
 
   navigator.geolocation.getCurrentPosition(function(position){
+    
     locationButton.removeAttr('disabled','disabled').text('Send location');
   socket.emit('createLocationMessage',{
     latitude:position.coords.latitude,
